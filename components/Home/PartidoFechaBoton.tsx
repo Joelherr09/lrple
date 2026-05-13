@@ -2,6 +2,8 @@
 
 "use client";
 
+import { formatChileanDate } from "@/lib/date-utils";
+
 interface PartidoFechaBotonProps {
   date: string;
   isActive: boolean;
@@ -9,76 +11,48 @@ interface PartidoFechaBotonProps {
 }
 
 const DAYS = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
-
-const MONTHS = [
-  "ene",
-  "feb",
-  "mar",
-  "abr",
-  "may",
-  "jun",
-  "jul",
-  "ago",
-  "sep",
-  "oct",
-  "nov",
-  "dic",
-];
+const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
 export default function PartidoFechaBoton({
   date,
   isActive,
   onClick,
 }: PartidoFechaBotonProps) {
-  const parsedDate = new Date(date);
+  // Seguridad extra
+  if (!date) {
+    return <div className="min-w-[88px] h-[120px] rounded-2xl bg-red-500/10">Error</div>;
+  }
 
-  const dayName = DAYS[parsedDate.getDay()];
+  const [year, month, day] = date.split("-").map(Number);
+
+  const parsedDate = new Date(year, month - 1, day);
+
+  const dayName = DAYS[parsedDate.getDay()] || "—";
   const dayNumber = parsedDate.getDate();
-  const monthName = MONTHS[parsedDate.getMonth()];
+  const monthName = MONTHS[parsedDate.getMonth()] || "—";
 
   return (
     <button
       onClick={onClick}
+      title={formatChileanDate(date, "long")}
       className={`
-        group relative flex min-w-[84px] snap-start flex-col items-center justify-center
-        rounded-2xl border px-4 py-3 transition-all duration-200
-        ${
-          isActive
-            ? "border-[#FF4D00] bg-[#FF4D00] text-white shadow-lg"
-            : "border-[#e5e5e5] bg-white text-[#111] hover:border-[#d4d4d4] hover:bg-[#fafafa]"
+        group relative flex min-w-[88px] snap-start flex-col items-center justify-center
+        rounded-2xl border px-4 py-3.5 transition-all duration-200 active:scale-[0.97]
+        ${isActive
+          ? "border-[#D4B23E] bg-[#D4B23E] text-white shadow-lg shadow-[#D4B23E]/30"
+          : "border-[#e5e5e5] bg-white text-[#111] hover:border-[#d4d4d4] hover:bg-[#fafafa] hover:shadow"
         }
       `}
     >
-      {/* DAY */}
-      <span
-        className={`
-          text-xs font-bold uppercase tracking-[0.15em]
-          ${
-            isActive
-              ? "text-white/80"
-              : "text-[#888]"
-          }
-        `}
-      >
+      <span className={`text-xs font-bold uppercase tracking-[0.15em] ${isActive ? "text-white/80" : "text-[#888]"}`}>
         {dayName}
       </span>
 
-      {/* NUMBER */}
-      <span className="mt-1 text-3xl font-black leading-none">
+      <span className="mt-1 text-3xl font-black leading-none tracking-tighter">
         {dayNumber}
       </span>
 
-      {/* MONTH */}
-      <span
-        className={`
-          mt-1 text-xs font-semibold uppercase tracking-[0.12em]
-          ${
-            isActive
-              ? "text-white/80"
-              : "text-[#777]"
-          }
-        `}
-      >
+      <span className={`mt-1 text-xs font-semibold uppercase tracking-[0.12em] ${isActive ? "text-white/80" : "text-[#777]"}`}>
         {monthName}
       </span>
     </button>

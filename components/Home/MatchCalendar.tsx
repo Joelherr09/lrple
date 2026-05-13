@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { CalendarDays, ChevronRight, Clock3, MapPin } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock3, MapPin } from "lucide-react";
 
 import PartidoFechaBoton from "./PartidoFechaBoton";
 import { formatChileanDate } from "@/lib/date-utils";
@@ -18,60 +12,73 @@ interface Props {
 }
 
 export default function MatchCalendar({ matches }: Props) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const activeButtonRef = useRef<HTMLDivElement>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   const groupedMatches = useMemo(() => {
     const grouped: Record<string, any[]> = {};
 
     matches.forEach((match) => {
-      const dateKey = match.fecha.split("T")[0];
-      if (!grouped[dateKey]) grouped[dateKey] = [];
+      // Usamos la fecha normalizada que creamos en app/page.tsx
+      const dateKey = match.fechaNormalizada || match.fecha.split("T")[0];
+      
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
       grouped[dateKey].push(match);
     });
 
     return grouped;
   }, [matches]);
 
-  const availableDates = Object.keys(groupedMatches).sort();
+  const allDates = useMemo(() => Object.keys(groupedMatches).sort(), [groupedMatches]);
 
-  const today = new Date();
+  // ==================== DEFAULT DATE (Próxima fecha) ====================
+  useEffect(() => {
+    if (allDates.length > 0 && !selectedDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normalizar hoy
 
-  const defaultDate =
-    availableDates.find((date) => new Date(`${date}T00:00:00`) >= today) ||
-    availableDates[availableDates.length - 1];
+      const defaultDate = allDates.find((date) => {
+        const matchDate = new Date(date);
+        return matchDate >= today;
+      }) || allDates[allDates.length - 1];
 
-  const [selectedDate, setSelectedDate] = useState(defaultDate);
+      setSelectedDate(defaultDate);
+    }
+  }, [allDates, selectedDate]);
 
   const selectedMatches = groupedMatches[selectedDate] || [];
 
-  // Formatear fecha para mostrar (usando tu utilidad)
-  const formattedSelectedDate = formatChileanDate(selectedDate, "long");
+  // ==================== VISIBLES (5 fechas centradas) ====================
+  const getVisibleDates = (): string[] => {
+    if (allDates.length <= 5) return allDates;
 
-  /* CENTER ACTIVE DATE */
-  useEffect(() => {
-    if (scrollRef.current && activeButtonRef.current) {
-      const container = scrollRef.current;
-      const activeEl = activeButtonRef.current;
+    const currentIndex = allDates.indexOf(selectedDate);
+    let start = currentIndex - 2;
 
-      const scrollPosition =
-        activeEl.offsetLeft -
-        container.offsetWidth / 2 +
-        activeEl.offsetWidth / 2;
+    if (start < 0) start = 0;
+    if (start + 5 > allDates.length) start = allDates.length - 5;
 
-      container.scrollTo({
-        left: scrollPosition,
-        behavior: "smooth",
-      });
-    }
-  }, [selectedDate]);
+    return allDates.slice(start, start + 5);
+  };
+
+  const visibleDates = getVisibleDates();
+
+  const currentIndex = allDates.indexOf(selectedDate);
+  const canGoLeft = currentIndex > 0;
+  const canGoRight = currentIndex < allDates.length - 1;
+
+  const goToPrevious = () => {
+    if (currentIndex > 0) setSelectedDate(allDates[currentIndex - 1]);
+  };
+
+  const goToNext = () => {
+    if (currentIndex < allDates.length - 1) setSelectedDate(allDates[currentIndex + 1]);
+  };
 
   return (
     <section className="relative">
-      {/* BG */}
       <div className="absolute inset-0 rounded-[40px] bg-gradient-to-br from-[#0D0D0D] via-[#131313] to-[#1A1A1A]" />
-
-      {/* GOLD LIGHT */}
       <div className="absolute left-0 top-0 h-[240px] w-[240px] rounded-full bg-[#D4B23E]/10 blur-3xl" />
 
       <div className="relative overflow-hidden rounded-[40px] border border-white/10 px-4 py-10 shadow-[0_30px_80px_rgba(0,0,0,0.45)] lg:px-8 lg:py-12">
@@ -84,155 +91,109 @@ export default function MatchCalendar({ matches }: Props) {
                 Calendario Oficial
               </span>
             </div>
-
             <h2 className="text-4xl font-black uppercase leading-none text-white lg:text-6xl">
               Partidos
             </h2>
+          </div>
+        </div>
 
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-[#A1A1AA] lg:text-base">
-              Fixture oficial de la Liga Regional Panadería La Estrella.
-            </p>
+        {/* NAVEGADOR DE FECHAS */}
+        <div className="mb-10 flex items-center justify-center gap-4">
+          <button
+            onClick={goToPrevious}
+            disabled={!canGoLeft}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white disabled:opacity-40 hover:bg-white/10 transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          <div className="flex gap-3">
+            {visibleDates.map((date) => (
+              <PartidoFechaBoton
+                key={date}
+                date={date}
+                isActive={selectedDate === date}
+                onClick={() => setSelectedDate(date)}
+              />
+            ))}
           </div>
 
-          <button className="group flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-black uppercase tracking-[0.2em] text-white transition hover:border-[#D4B23E]/40 hover:bg-[#D4B23E] hover:text-black">
-            Ver Calendario Completo
-            <ChevronRight className="h-4 w-4 transition group-hover:translate-x-1" />
+          <button
+            onClick={goToNext}
+            disabled={!canGoRight}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white disabled:opacity-40 hover:bg-white/10 transition"
+          >
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
-        {/* DATE SELECTOR */}
-        <div
-          ref={scrollRef}
-          className="mb-8 overflow-x-auto pb-4 scrollbar-hide"
-        >
-          <div className="flex min-w-max gap-3 px-1">
-            {availableDates.map((date) => {
-              const isActive = selectedDate === date;
-              const shortLabel = formatChileanDate(date, "short");
-              const longLabel = formatChileanDate(date, "long");
-
-              return (
-                <div
-                  key={date}
-                  ref={isActive ? activeButtonRef : null}
-                >
-                  <PartidoFechaBoton
-                    date={date}
-                    isActive={isActive}
-                    onClick={() => setSelectedDate(date)}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* SELECTED DATE TITLE */}
-        <div className="mb-6 px-1">
-          <p className="text-xl font-black text-white lg:text-2xl">
-            {formattedSelectedDate}
+        {/* FECHA SELECCIONADA */}
+        <div className="mb-8 text-center">
+          <p className="text-2xl font-black text-white">
+            {formatChileanDate(selectedDate, "long")}
           </p>
         </div>
 
-        {/* MATCHES */}
+        {/* PARTIDOS */}
         <div className="grid gap-4 lg:grid-cols-2">
-          {selectedMatches.map((match: any) => (
-            <div
-              key={match.id}
-              className="group overflow-hidden rounded-[26px] border border-white/10 bg-[#171717]/95 transition duration-300 hover:-translate-y-1 hover:border-[#D4B23E]/25 hover:bg-[#1D1D1D]"
-            >
-              {/* TOP BAR */}
-              <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${
-                      match.category.toLowerCase().includes("damas")
-                        ? "bg-[#D4B23E]/15 text-[#F3D97A]"
-                        : "bg-[#005C1F]/20 text-[#7EE2A8]"
-                    }`}
-                  >
+          {selectedMatches.length > 0 ? (
+            selectedMatches.map((match: any) => (
+              <div
+                key={match.id}
+                className="group overflow-hidden rounded-[26px] border border-white/10 bg-[#171717]/95 transition hover:-translate-y-1 hover:border-[#D4B23E]/25 hover:bg-[#1D1D1D]"
+              >
+                <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${
+                    match.category.toLowerCase().includes("damas")
+                      ? "bg-[#D4B23E]/15 text-[#F3D97A]"
+                      : "bg-[#005C1F]/20 text-[#7EE2A8]"
+                  }`}>
                     {match.categoryShort}
                   </span>
 
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      match.estado === "finalizado"
-                        ? "bg-[#22C55E]"
-                        : "bg-[#F59E0B]"
-                    }`}
-                  />
+                  <div className="flex items-center gap-2 text-[#D4B23E]">
+                    <Clock3 className="h-4 w-4" />
+                    <p className="text-sm font-black">
+                      {formatChileanDate(match.fecha, "time")}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-[#D4B23E]">
-                  <Clock3 className="h-4 w-4" />
-                  <p className="text-sm font-black">
-                    {formatChileanDate(match.fecha, "time")}
-                  </p>
-                </div>
-              </div>
-
-              {/* MATCH BODY */}
-              <div className="space-y-4 px-4 py-5">
-                {/* LOCAL */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Image
-                      src={match.equipo_local.logo_url}
-                      alt={match.equipo_local.nombre}
-                      width={44}
-                      height={44}
-                      className="rounded-full border border-white/10 object-cover"
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate text-base font-black text-white">
-                        {match.equipo_local.nombre}
-                      </p>
-                      <p className="text-xs uppercase tracking-wide text-[#8B8B8B]">
-                        {match.equipo_local.siglas}
-                      </p>
+                <div className="space-y-4 px-4 py-5">
+                  {/* Local */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Image src={match.equipo_local.logo_url} alt="" width={44} height={44} className="rounded-full" />
+                      <div>
+                        <p className="font-black text-white">{match.equipo_local.nombre}</p>
+                        <p className="text-xs text-gray-400">{match.equipo_local.siglas}</p>
+                      </div>
                     </div>
+                    <div className="text-4xl font-black text-white">{match.sets_local}</div>
                   </div>
 
-                  <div className="text-4xl font-black text-white">
-                    {match.sets_local}
-                  </div>
-                </div>
-
-                {/* VISITA */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Image
-                      src={match.equipo_visita.logo_url}
-                      alt={match.equipo_visita.nombre}
-                      width={44}
-                      height={44}
-                      className="rounded-full border border-white/10 object-cover"
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate text-base font-black text-white">
-                        {match.equipo_visita.nombre}
-                      </p>
-                      <p className="text-xs uppercase tracking-wide text-[#8B8B8B]">
-                        {match.equipo_visita.siglas}
-                      </p>
+                  {/* Visita */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Image src={match.equipo_visita.logo_url} alt="" width={44} height={44} className="rounded-full" />
+                      <div>
+                        <p className="font-black text-white">{match.equipo_visita.nombre}</p>
+                        <p className="text-xs text-gray-400">{match.equipo_visita.siglas}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="text-4xl font-black text-white">
-                    {match.sets_visita}
+                    <div className="text-4xl font-black text-white">{match.sets_visita}</div>
                   </div>
                 </div>
-              </div>
 
-              {/* FOOTER */}
-              <div className="flex items-center gap-2 border-t border-white/5 bg-black/20 px-4 py-3.5">
-                <MapPin className="h-4 w-4 text-[#D4B23E]" />
-                <p className="truncate text-sm text-[#C7C7C7]">
+                <div className="border-t border-white/5 bg-black/30 px-4 py-3 text-sm text-gray-300 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-[#D4B23E]" />
                   {match.cancha}
-                </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="col-span-2 py-20 text-center text-gray-500">No hay partidos programados para esta fecha.</p>
+          )}
         </div>
       </div>
     </section>

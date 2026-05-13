@@ -72,20 +72,48 @@ export default async function HomePage() {
     })
   );
 
-  const allMatches = tournaments
-    .flatMap((tournament) =>
-      tournament.data.partidos.map((match: any) => ({
+const allMatches = tournaments
+  .flatMap((tournament) =>
+    tournament.data.partidos.map((match: any) => {
+      const fechaOriginal = match.fecha;
+
+      // Normalizamos la fecha a hora de Chile de forma segura
+      let fechaNormalizada: string;
+
+      if (fechaOriginal) {
+        const date = new Date(fechaOriginal);
+        
+        // Forzamos la fecha según zona horaria de Santiago
+        const options: Intl.DateTimeFormatOptions = {
+          timeZone: "America/Santiago",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        };
+
+        const formatter = new Intl.DateTimeFormat("es-CL", options);
+        const parts = formatter.formatToParts(date);
+        
+        const year = parts.find(p => p.type === "year")?.value;
+        const month = parts.find(p => p.type === "month")?.value;
+        const day = parts.find(p => p.type === "day")?.value;
+
+        fechaNormalizada = `${year}-${month}-${day}`;
+      } else {
+        fechaNormalizada = fechaOriginal.split("T")[0];
+      }
+
+      return {
         ...match,
         category: tournament.name,
         categoryShort: tournament.shortName,
         tournamentType: tournament.type,
-      }))
-    )
-    .sort(
-      (a, b) =>
-        new Date(a.fecha).getTime() -
-        new Date(b.fecha).getTime()
-    );
+        fechaNormalizada,        // ← Esta es la clave
+        fechaOriginal,
+      };
+    })
+  )
+  .sort((a, b) => new Date(a.fechaOriginal).getTime() - new Date(b.fechaOriginal).getTime());
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#0b0b0b] text-white">
