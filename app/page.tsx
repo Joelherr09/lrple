@@ -89,7 +89,6 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#0b0b0b] text-white">
-{/* ================= HERO ================= */}
 <section className="relative isolate overflow-hidden border-b border-white/10">
   {/* BG */}
   <div className="absolute inset-0 overflow-hidden">
@@ -112,7 +111,7 @@ export default async function HomePage() {
   <div className="absolute -right-32 bottom-[-120px] h-[260px] w-[260px] rounded-full bg-[#005C1F]/25 blur-3xl" />
 
   <div className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-12 lg:px-6 lg:py-10">
-    <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+    <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
       {/* LEFT */}
       <div className="max-w-4xl">
         {/* BADGE */}
@@ -185,6 +184,38 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* RIGHT IMAGE */}
+      <div className="relative mx-auto w-full max-w-[420px] lg:max-w-[520px]">
+        {/* GLOW */}
+        <div className="absolute inset-0 scale-90 rounded-full bg-[#D4B23E]/20 blur-3xl" />
+
+        {/* CARD */}
+        <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] p-2 backdrop-blur-xl shadow-[0_25px_80px_rgba(0,0,0,0.45)]">
+          <div className="relative aspect-square overflow-hidden rounded-[22px]">
+            <Image
+              src="/galeria/liga.jpg"
+              alt="Liga Regional"
+              fill
+              priority
+              className="object-cover transition duration-700 hover:scale-105"
+            />
+
+            {/* OVERLAY */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+            {/* FLOATING BADGE */}
+            <div className="absolute bottom-4 left-4 rounded-2xl border border-white/10 bg-black/50 px-4 py-3 backdrop-blur-xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#D4B23E]">
+                Liga Oficial
+              </p>
+
+              <p className="mt-1 text-sm font-bold text-white">
+                Temporada 2026
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -222,7 +253,7 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.015),transparent)]" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-5 py-16 lg:px-6 lg:py-24">
+        <div className="relative z-10 mx-auto max-w-7xl px-0 md:px-5 py-16 lg:px-6 lg:py-24">
           <StandingsSection tournaments={tournaments} />
         </div>
       </section>
