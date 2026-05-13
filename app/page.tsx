@@ -26,16 +26,16 @@ const tournamentConfigs = [
     shortName: "TC D",
   },
   {
-    name: "Sub 14 Damas",
-    url: "https://4volei.vercel.app/api/public/tournaments?id=79dedf84-7acc-4a81-b68a-4ff2c03c4c55&standings=true",
-    type: "women",
-    shortName: "S14 D",
-  },
-  {
     name: "Sub 16 Damas",
     url: "https://4volei.vercel.app/api/public/tournaments?id=ccbcca56-98bd-44ce-9135-f0d530b169e4&standings=true",
     type: "women",
     shortName: "S16 D",
+  },
+  {
+    name: "Sub 14 Damas",
+    url: "https://4volei.vercel.app/api/public/tournaments?id=79dedf84-7acc-4a81-b68a-4ff2c03c4c55&standings=true",
+    type: "women",
+    shortName: "S14 D",
   },
   {
     name: "Sub 12 Damas",
