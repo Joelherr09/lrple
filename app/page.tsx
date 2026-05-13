@@ -173,7 +173,7 @@ const allMatches = tournaments
         </div>
 
         {/* TITLE */}
-        <h1 className="max-w-5xl text-4xl font-black uppercase leading-[0.92] tracking-[-2px] sm:text-5xl lg:text-5xl xl:text-[76px]">
+        <h1 className="max-w-5xl text-4xl font-black  uppercase leading-[0.92] tracking-[-2px] sm:text-5xl lg:text-5xl xl:text-[76px]">
           <span className="block">
             Liga Regional
           </span>
