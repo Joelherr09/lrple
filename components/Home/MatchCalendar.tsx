@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Image from "next/image";
 import { CalendarDays, ChevronLeft, ChevronRight, Clock3, MapPin } from "lucide-react";
 
@@ -13,6 +13,7 @@ interface Props {
 
 export default function MatchCalendar({ matches }: Props) {
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const mobileContainerRef = useRef<HTMLDivElement | null>(null);
 
   const groupedMatches = useMemo(() => {
     const grouped: Record<string, any[]> = {};
@@ -29,6 +30,7 @@ export default function MatchCalendar({ matches }: Props) {
 
     return grouped;
   }, [matches]);
+  
 
   const allDates = useMemo(() => Object.keys(groupedMatches).sort(), [groupedMatches]);
 
@@ -76,6 +78,24 @@ export default function MatchCalendar({ matches }: Props) {
     if (currentIndex < allDates.length - 1) setSelectedDate(allDates[currentIndex + 1]);
   };
 
+  useEffect(() => {
+  const container = mobileContainerRef.current;
+
+  if (!container) return;
+
+  const activeButton = container.querySelector(
+    '[data-active="true"]'
+  ) as HTMLElement | null;
+
+  if (!activeButton) return;
+
+  activeButton.scrollIntoView({
+    behavior: 'smooth',
+    inline: 'center',
+    block: 'nearest',
+  });
+}, [selectedDate]);
+
   return (
     <section className="relative">
       <div className="absolute inset-0 rounded-[40px] bg-gradient-to-br from-[#0D0D0D] via-[#131313] to-[#1A1A1A]" />
@@ -102,26 +122,39 @@ export default function MatchCalendar({ matches }: Props) {
           <button
             onClick={goToPrevious}
             disabled={!canGoLeft}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white disabled:opacity-40 hover:bg-white/10 transition"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10 disabled:opacity-40"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
 
-          <div className="flex gap-3">
+          {/* MOBILE + DESKTOP */}
+          <div
+            ref={mobileContainerRef}
+            className="
+              flex gap-3 overflow-x-auto scroll-smooth
+              px-[35vw] md:px-0
+              scrollbar-hide
+            "
+          >
             {visibleDates.map((date) => (
-              <PartidoFechaBoton
+              <div
                 key={date}
-                date={date}
-                isActive={selectedDate === date}
-                onClick={() => setSelectedDate(date)}
-              />
+                data-active={selectedDate === date}
+                className="shrink-0"
+              >
+                <PartidoFechaBoton
+                  date={date}
+                  isActive={selectedDate === date}
+                  onClick={() => setSelectedDate(date)}
+                />
+              </div>
             ))}
           </div>
 
           <button
             onClick={goToNext}
             disabled={!canGoRight}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white disabled:opacity-40 hover:bg-white/10 transition"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10 disabled:opacity-40"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
