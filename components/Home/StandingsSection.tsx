@@ -146,7 +146,7 @@ export default function StandingsSection({ tournaments }: Props) {
                     <div className="overflow-x-auto">
                       <div className="min-w-[340px] md:min-w-full">
                         {/* HEADER */}
-                        <div className="grid grid-cols-[34px_minmax(0,1fr)_44px_40px_56px] border-b border-white/5 bg-black/30 px-3 py-3 text-[10px] font-black uppercase tracking-[0.5px] text-[#8B98AE] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px] md:px-4">
+                        <div className="grid grid-cols-[34px_minmax(0,1fr)_44px_40px_56px] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px] border-b border-white/5 bg-black/30 px-3 py-3 text-[10px] font-black uppercase tracking-[0.5px] text-[#8B98AE] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px] md:px-4">
                           <div className="text-center">#</div>
                           <div>Equipo</div>
                           <div className="text-center">Pts</div>
@@ -154,7 +154,6 @@ export default function StandingsSection({ tournaments }: Props) {
                           <div className="text-center">Sets</div>
 
                           <div className="hidden text-center md:block">PG</div>
-                          <div className="hidden text-center md:block">SG/SP</div>
                           <div className="hidden text-center md:block">DIF</div>
                         </div>
 
@@ -162,7 +161,7 @@ export default function StandingsSection({ tournaments }: Props) {
                         {(groupTeams as any[]).map((team, index) => (
                           <div
                             key={team.equipo_id}
-                            className="grid grid-cols-[34px_minmax(0,1fr)_44px_40px_56px] items-center border-b border-white/5 px-3 py-3 transition hover:bg-white/[0.03] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px] md:px-4"
+                            className="grid grid-cols-[34px_minmax(0,1fr)_44px_40px_56px] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px] items-center border-b border-white/5 px-3 py-3 transition hover:bg-white/[0.03] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px] md:px-4"
                           >
                             <div className="flex justify-center">
                               <div
@@ -216,9 +215,6 @@ export default function StandingsSection({ tournaments }: Props) {
                               {team.pg}
                             </div>
 
-                            <div className="hidden text-center text-sm font-bold text-[#D1D5DB] md:block">
-                              {team.sg}/{team.sp}
-                            </div>
 
                             <div
                               className={`hidden text-center text-sm font-black md:block ${
