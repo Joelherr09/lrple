@@ -132,7 +132,7 @@ export default function Footer() {
                 </span>
 
                 <Link
-                  href="https://joelherr.netlify.app"
+                  href="https://www.joelherr.site/"
                   target="_blank"
                   className="font-semibold text-white transition hover:text-[#D4B23E]"
                 >
