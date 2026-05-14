@@ -144,25 +144,25 @@ export default function StandingsSection({ tournaments }: Props) {
 
                     {/* TABLE */}
                     <div className="overflow-x-auto">
-                      <div className="min-w-[520px] md:min-w-full">
+                      <div className="min-w-[340px] md:min-w-full">
                         {/* HEADER */}
-                        <div className="grid grid-cols-[38px_0.5fr_52px_48px_60px] border-b border-white/5 bg-black/30 px-4 py-3 text-[10px] font-black uppercase tracking-[0.5px] text-[#8B98AE] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px]">
+                        <div className="grid grid-cols-[34px_minmax(0,1fr)_44px_40px_56px] border-b border-white/5 bg-black/30 px-3 py-3 text-[10px] font-black uppercase tracking-[0.5px] text-[#8B98AE] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px] md:px-4">
                           <div className="text-center">#</div>
                           <div>Equipo</div>
                           <div className="text-center">Pts</div>
                           <div className="text-center">PJ</div>
                           <div className="text-center">Sets</div>
 
-                          <div className="hidden md:block text-center">PG</div>
-                          <div className="hidden md:block text-center">SG/SP</div>
-                          <div className="hidden md:block text-center">DIF</div>
+                          <div className="hidden text-center md:block">PG</div>
+                          <div className="hidden text-center md:block">SG/SP</div>
+                          <div className="hidden text-center md:block">DIF</div>
                         </div>
 
                         {/* ROWS */}
                         {(groupTeams as any[]).map((team, index) => (
                           <div
                             key={team.equipo_id}
-                            className="grid grid-cols-[38px_0.5fr_52px_48px_60px] items-center border-b border-white/5 px-4 py-3 transition hover:bg-white/[0.03] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px]"
+                            className="grid grid-cols-[34px_minmax(0,1fr)_44px_40px_56px] items-center border-b border-white/5 px-3 py-3 transition hover:bg-white/[0.03] md:grid-cols-[48px_1.8fr_70px_60px_85px_70px_95px_70px] md:px-4"
                           >
                             <div className="flex justify-center">
                               <div
@@ -180,7 +180,7 @@ export default function StandingsSection({ tournaments }: Props) {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-2.5 pr-2">
+                            <div className="flex min-w-0 items-center gap-2 pr-1 md:gap-2.5 md:pr-2">
                               <Image
                                 src={team.logo_url}
                                 alt={team.nombre}
@@ -188,34 +188,40 @@ export default function StandingsSection({ tournaments }: Props) {
                                 height={28}
                                 className="h-7 w-7 rounded-full border border-white/20 object-cover md:h-9 md:w-9"
                               />
+
                               <div className="min-w-0">
                                 <p className="truncate text-sm font-black text-white">
                                   {team.siglas}
                                 </p>
-                                <p className="truncate text-[11px] text-[#8B98AE] md:text-xs">
+
+                                <p className="truncate text-[10px] text-[#8B98AE] md:text-xs">
                                   {team.nombre}
                                 </p>
                               </div>
                             </div>
 
-                            <div className="text-center text-lg font-black text-white">
+                            <div className="text-center text-base font-black text-white md:text-lg">
                               {team.pts}
                             </div>
+
                             <div className="text-center text-sm font-bold text-[#D1D5DB]">
                               {team.pj}
                             </div>
-                            <div className="text-center text-sm font-bold text-[#D1D5DB]">
+
+                            <div className="text-center text-xs font-bold text-[#D1D5DB] md:text-sm">
                               {team.sg}/{team.sp}
                             </div>
 
-                            <div className="hidden md:block text-center text-sm font-bold text-[#D1D5DB]">
+                            <div className="hidden text-center text-sm font-bold text-[#D1D5DB] md:block">
                               {team.pg}
                             </div>
-                            <div className="hidden md:block text-center text-sm font-bold text-[#D1D5DB]">
+
+                            <div className="hidden text-center text-sm font-bold text-[#D1D5DB] md:block">
                               {team.sg}/{team.sp}
                             </div>
+
                             <div
-                              className={`hidden md:block text-center text-sm font-black ${
+                              className={`hidden text-center text-sm font-black md:block ${
                                 team.dif > 0
                                   ? "text-[#22C55E]"
                                   : team.dif < 0
@@ -230,6 +236,8 @@ export default function StandingsSection({ tournaments }: Props) {
                         ))}
                       </div>
                     </div>
+
+
                   </div>
                 ))}
               </div>
